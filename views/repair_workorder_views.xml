@@ -1,0 +1,37 @@
+<odoo>
+    <record id="view_repair_workorder_tree" model="ir.ui.view">
+        <field name="name">repair.workorder.tree</field>
+        <field name="model">repair.workorder</field>
+        <field name="arch" type="xml">
+            <tree decoration-success="state=='progress'"
+                  decoration-danger="state=='blocked'"
+                  decoration-muted="state=='done'">
+
+                <field name="name"/>
+                <field name="workcenter_id"/>
+                <field name="employee_id"/>
+                <field name="duration"/>
+                <field name="state" widget="badge"/>
+
+                <button name="action_start"
+                        type="object"
+                        string="Start"
+                        class="btn btn-success"
+                        attrs="{'invisible':[('state','!=','ready')]}"/>
+
+                <button name="action_block"
+                        type="object"
+                        string="Block"
+                        class="btn btn-danger"
+                        attrs="{'invisible':[('state','!=','progress')]}"/>
+
+                <button name="action_done"
+                        type="object"
+                        string="Done"
+                        class="btn btn-secondary"
+                        attrs="{'invisible':[('state','not in',('progress','blocked'))]}"/>
+
+            </tree>
+        </field>
+    </record>
+</odoo>
