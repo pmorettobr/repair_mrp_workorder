@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from odoo import models, fields, api
 from odoo.exceptions import UserError
 from datetime import datetime
@@ -9,19 +10,16 @@ class RepairWorkorder(models.Model):
 
     name = fields.Char(string='Operação', required=True)
     repair_id = fields.Many2one('repair.order', required=True, ondelete='cascade')
-
     workcenter_id = fields.Many2one(
         'mrp.workcenter',
         string='Centro de Trabalho',
         required=True
     )
-
     employee_id = fields.Many2one(
         'hr.employee',
         string='Operador',
         required=True
     )
-
     state = fields.Selection([
         ('ready', 'Pronto'),
         ('progress', 'Em Execução'),
@@ -53,12 +51,20 @@ class RepairWorkorder(models.Model):
 
     @api.depends('workcenter_id', 'state')
     def _compute_machine_in_use(self):
+        """
+        Verifica se o workcenter já está em uso por outra ordem de reparo.
+        Correção: evita erro ao criar registro novo (NewId não é inteiro).
+        """
         for rec in self:
-            in_use = self.search([
+            domain = [
                 ('workcenter_id', '=', rec.workcenter_id.id),
                 ('state', '=', 'progress'),
-                ('id', '!=', rec.id)
-            ])
+            ]
+            # Só exclui o próprio registro se ele já tiver ID inteiro (já salvo no banco)
+            if rec.id and isinstance(rec.id, int):
+                domain.append(('id', '!=', rec.id))
+            
+            in_use = self.search(domain)
             rec.machine_in_use = bool(in_use)
 
     def action_start(self):
