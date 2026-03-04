@@ -2,7 +2,7 @@
 <odoo>
 
     <!-- ========================================================
-         PASSO 1: Oculta a aba "Operations"
+         PASSO 1: Oculta a aba "Operations" (tem name="operations")
          ======================================================== -->
     <record id="view_repair_order_form_hide_operations" model="ir.ui.view">
         <field name="name">repair.order.form.hide.operations</field>
@@ -16,7 +16,8 @@
     </record>
 
     <!-- ========================================================
-         PASSO 2: Remove a aba Work Orders original
+         PASSO 2: Remove a aba Work Orders original (do módulo)
+         Seleciona pela presença do campo workorder_ids
          ======================================================== -->
     <record id="view_repair_order_form_remove_original_workorder" model="ir.ui.view">
         <field name="name">repair.order.form.remove.original.workorder</field>
@@ -28,8 +29,9 @@
     </record>
 
     <!-- ========================================================
-         PASSO 3: Adiciona "Ordens de Serviço" ANTES de 
-         "Informações Adicionais" (extra_info)
+         PASSO 3: Adiciona "Ordens de Serviço" na posição correta
+         Seleciona a página "Repair Notes" pelo campo internal_notes
+         (NÃO usa @string em lugar nenhum!)
          ======================================================== -->
     <record id="view_repair_order_form_add_workorder_position" model="ir.ui.view">
         <field name="name">repair.order.form.add.workorder.position</field>
@@ -38,8 +40,8 @@
         <field name="priority" eval="100"/>
         <field name="arch" type="xml">
             
-            <!-- Insere ANTES da aba "Extra Info" (Informações Adicionais) -->
-            <xpath expr="//page[@name='extra_info']" position="before">
+            <!-- Seleciona a página que CONTÉM o campo internal_notes -->
+            <xpath expr="//page[.//field[@name='internal_notes']]" position="before">
                 <page string="Ordens de Serviço" name="work_orders_custom">
                     <field name="workorder_ids" 
                            context="{'default_repair_id': active_id}">
