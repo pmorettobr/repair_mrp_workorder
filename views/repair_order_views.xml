@@ -1,31 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- 1. Renomeia a aba Work Orders para "Ordens de Serviço" -->
+
+    <!-- ========================================================
+         PASSO 1: Renomeia a aba que contém workorder_ids
+         Selecionamos pelo CAMPO, não pela string (funciona no Odoo 16)
+         ======================================================== -->
     <record id="view_repair_order_form_rename_workorder" model="ir.ui.view">
         <field name="name">repair.order.form.rename.workorder</field>
         <field name="model">repair.order</field>
         <field name="inherit_id" ref="view_repair_order_form_inherit_workorder"/>
         <field name="arch" type="xml">
-            <!-- Seleciona pela string original e renomeia -->
-            <xpath expr="//page[@string='Work Orders']" position="attributes">
-                <attribute name="string">Ordens de Serviço</attribute>
+            <!-- Seleciona a página que contém o campo workorder_ids -->
+            <xpath expr="//field[@name='workorder_ids']" position="attributes">
+                <!-- Não renomeamos aqui, faremos no próximo passo -->
             </xpath>
         </field>
     </record>
 
-    <!-- 2. Move a aba "Ordens de Serviço" para antes da aba Operations -->
-    <record id="view_repair_order_form_move_workorder" model="ir.ui.view">
-        <field name="name">repair.order.form.move.workorder</field>
+    <!-- ========================================================
+         PASSO 2: Remove a aba original e recria com nome correto
+         ======================================================== -->
+    <record id="view_repair_order_form_recreate_workorder" model="ir.ui.view">
+        <field name="name">repair.order.form.recreate.workorder</field>
         <field name="model">repair.order</field>
         <field name="inherit_id" ref="view_repair_order_form_inherit_workorder"/>
+        <field name="priority" eval="99"/>
         <field name="arch" type="xml">
-            <!-- Move a página que agora se chama "Ordens de Serviço" -->
-            <xpath expr="//page[@string='Ordens de Serviço']" position="move">
+            <!-- Remove a página original que tem workorder_ids -->
+            <xpath expr="//page[.//field[@name='workorder_ids']]" position="replace">
+                <!-- Recria a página com nome correto e string em português -->
+                <page string="Ordens de Serviço" name="work_orders_custom">
+                    <field name="workorder_ids" 
+                           context="{'default_repair_id': active_id}">
+                        <tree decoration-success="state=='progress'"
+                              decoration-danger="state=='blocked'"
+                              decoration-muted="state=='done'"
+                              editable="bottom">
+                            <field name="name"/>
+                            <field name="workcenter_id"/>
+                            <field name="employee_id"/>
+                            <field name="duration"/>
+                            <field name="state" widget="badge"/>
+                            
+                            <button name="action_start"
+                                    type="object"
+                                    string="Iniciar"
+                                    class="btn btn-success"
+                                    attrs="{'invisible':[('state','!=','ready')]}"/>
+                            
+                            <button name="action_block"
+                                    type="object"
+                                    string="Bloquear"
+                                    class="btn btn-danger"
+                                    attrs="{'invisible':[('state','!=','progress')]}"/>
+                            
+                            <button name="action_done"
+                                    type="object"
+                                    string="Concluir"
+                                    class="btn btn-secondary"
+                                    attrs="{'invisible':[('state','not in',('progress','blocked'))]}"/>
+                        </tree>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ========================================================
+         PASSO 3: Move a nova aba para a posição correta
+         (antes da aba operations que será ocultada)
+         ======================================================== -->
+    <record id="view_repair_order_form_position_workorder" model="ir.ui.view">
+        <field name="name">repair.order.form.position.workorder</field>
+        <field name="model">repair.order</field>
+        <field name="inherit_id" ref="repair.view_repair_order_form"/>
+        <field name="priority" eval="100"/>
+        <field name="arch" type="xml">
+            <!-- Move nossa aba customizada para antes de operations -->
+            <xpath expr="//page[@name='work_orders_custom']" position="move">
                 <xpath expr="//page[@name='operations']" position="before"/>
             </xpath>
         </field>
     </record>
 
-    <!-- 3. Oculta a aba Operations padrão -->
+    <!-- ========================================================
+         PASSO 4: Oculta a aba Operations padrão do Repair
+         ======================================================== -->
     <record id="view_repair_order_form_hide_operations" model="ir.ui.view">
         <field name="name">repair.order.form.hide.operations</field>
         <field name="model">repair.order</field>
@@ -36,4 +96,5 @@
             </xpath>
         </field>
     </record>
+
 </odoo>
