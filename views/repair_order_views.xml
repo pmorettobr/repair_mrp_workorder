@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
     <!-- ========================================================
          PASSO 1: Oculta a aba "Operations" padrão do Repair
          Usa o name="operations" que vimos no seu XML
