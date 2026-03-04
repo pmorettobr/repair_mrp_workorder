@@ -2,33 +2,46 @@
 <odoo>
 
     <!-- ========================================================
-         PASSO 1: Renomeia a aba que contém workorder_ids
-         Selecionamos pelo CAMPO, não pela string (funciona no Odoo 16)
+         PASSO 1: Oculta a aba "Operations" padrão do Repair
+         Usa o name="operations" que vimos no seu XML
          ======================================================== -->
-    <record id="view_repair_order_form_rename_workorder" model="ir.ui.view">
-        <field name="name">repair.order.form.rename.workorder</field>
+    <record id="view_repair_order_form_hide_operations" model="ir.ui.view">
+        <field name="name">repair.order.form.hide.operations</field>
         <field name="model">repair.order</field>
-        <field name="inherit_id" ref="view_repair_order_form_inherit_workorder"/>
+        <field name="inherit_id" ref="repair.view_repair_order_form"/>
         <field name="arch" type="xml">
-            <!-- Seleciona a página que contém o campo workorder_ids -->
-            <xpath expr="//field[@name='workorder_ids']" position="attributes">
-                <!-- Não renomeamos aqui, faremos no próximo passo -->
+            <xpath expr="//page[@name='operations']" position="attributes">
+                <attribute name="invisible">1</attribute>
             </xpath>
         </field>
     </record>
 
     <!-- ========================================================
-         PASSO 2: Remove a aba original e recria com nome correto
+         PASSO 2: Remove a aba Work Orders original (adicionada no final)
+         Seleciona pelo CAMPO workorder_ids (único e confiável)
          ======================================================== -->
-    <record id="view_repair_order_form_recreate_workorder" model="ir.ui.view">
-        <field name="name">repair.order.form.recreate.workorder</field>
+    <record id="view_repair_order_form_remove_original_workorder" model="ir.ui.view">
+        <field name="name">repair.order.form.remove.original.workorder</field>
         <field name="model">repair.order</field>
         <field name="inherit_id" ref="view_repair_order_form_inherit_workorder"/>
-        <field name="priority" eval="99"/>
         <field name="arch" type="xml">
-            <!-- Remove a página original que tem workorder_ids -->
-            <xpath expr="//page[.//field[@name='workorder_ids']]" position="replace">
-                <!-- Recria a página com nome correto e string em português -->
+            <!-- Seleciona QUALQUER página que contenha o campo workorder_ids -->
+            <xpath expr="//page[.//field[@name='workorder_ids']]" position="replace"/>
+        </field>
+    </record>
+
+    <!-- ========================================================
+         PASSO 3: Recria a aba "Ordens de Serviço" na posição CORRETA
+         Inserimos ANTES da aba "Repair Notes" (mesmo lugar da Operations)
+         ======================================================== -->
+    <record id="view_repair_order_form_add_workorder_position" model="ir.ui.view">
+        <field name="name">repair.order.form.add.workorder.position</field>
+        <field name="model">repair.order</field>
+        <field name="inherit_id" ref="repair.view_repair_order_form"/>
+        <field name="priority" eval="100"/>
+        <field name="arch" type="xml">
+            <!-- Insere ANTES da aba "Repair Notes" -->
+            <xpath expr="//page[@string='Repair Notes']" position="before">
                 <page string="Ordens de Serviço" name="work_orders_custom">
                     <field name="workorder_ids" 
                            context="{'default_repair_id': active_id}">
@@ -62,37 +75,6 @@
                         </tree>
                     </field>
                 </page>
-            </xpath>
-        </field>
-    </record>
-
-    <!-- ========================================================
-         PASSO 3: Move a nova aba para a posição correta
-         (antes da aba operations que será ocultada)
-         ======================================================== -->
-    <record id="view_repair_order_form_position_workorder" model="ir.ui.view">
-        <field name="name">repair.order.form.position.workorder</field>
-        <field name="model">repair.order</field>
-        <field name="inherit_id" ref="repair.view_repair_order_form"/>
-        <field name="priority" eval="100"/>
-        <field name="arch" type="xml">
-            <!-- Move nossa aba customizada para antes de operations -->
-            <xpath expr="//page[@name='work_orders_custom']" position="move">
-                <xpath expr="//page[@name='operations']" position="before"/>
-            </xpath>
-        </field>
-    </record>
-
-    <!-- ========================================================
-         PASSO 4: Oculta a aba Operations padrão do Repair
-         ======================================================== -->
-    <record id="view_repair_order_form_hide_operations" model="ir.ui.view">
-        <field name="name">repair.order.form.hide.operations</field>
-        <field name="model">repair.order</field>
-        <field name="inherit_id" ref="repair.view_repair_order_form"/>
-        <field name="arch" type="xml">
-            <xpath expr="//page[@name='operations']" position="attributes">
-                <attribute name="invisible">1</attribute>
             </xpath>
         </field>
     </record>
