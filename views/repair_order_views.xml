@@ -1,68 +1,38 @@
 <odoo>
-    <!-- 1. Remove a aba Work Orders que foi adicionada no final pelo módulo original -->
-    <record id="view_repair_order_form_remove_workorder" model="ir.ui.view">
-        <field name="name">repair.order.form.remove.workorder</field>
+    <!-- 1. Renomeia a aba Work Orders para "Ordens de Serviço" -->
+    <record id="view_repair_order_form_rename_workorder" model="ir.ui.view">
+        <field name="name">repair.order.form.rename.workorder</field>
         <field name="model">repair.order</field>
         <field name="inherit_id" ref="view_repair_order_form_inherit_workorder"/>
         <field name="arch" type="xml">
-            <!-- Usa o atributo 'name' ao invés de 'string' -->
-            <xpath expr="//page[@name='work_orders']" position="replace"/>
+            <!-- Seleciona pela string original e renomeia -->
+            <xpath expr="//page[@string='Work Orders']" position="attributes">
+                <attribute name="string">Ordens de Serviço</attribute>
+            </xpath>
         </field>
     </record>
 
-    <!-- 2. Oculta a aba Operations padrão do módulo Repair -->
+    <!-- 2. Move a aba "Ordens de Serviço" para antes da aba Operations -->
+    <record id="view_repair_order_form_move_workorder" model="ir.ui.view">
+        <field name="name">repair.order.form.move.workorder</field>
+        <field name="model">repair.order</field>
+        <field name="inherit_id" ref="view_repair_order_form_inherit_workorder"/>
+        <field name="arch" type="xml">
+            <!-- Move a página que agora se chama "Ordens de Serviço" -->
+            <xpath expr="//page[@string='Ordens de Serviço']" position="move">
+                <xpath expr="//page[@name='operations']" position="before"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- 3. Oculta a aba Operations padrão -->
     <record id="view_repair_order_form_hide_operations" model="ir.ui.view">
         <field name="name">repair.order.form.hide.operations</field>
         <field name="model">repair.order</field>
         <field name="inherit_id" ref="repair.view_repair_order_form"/>
         <field name="arch" type="xml">
-            <!-- Seleciona pelo name='operations' -->
             <xpath expr="//page[@name='operations']" position="attributes">
                 <attribute name="invisible">1</attribute>
-            </xpath>
-        </field>
-    </record>
-
-    <!-- 3. Adiciona a aba 'Ordens de Serviço' na posição correta -->
-    <record id="view_repair_order_form_workorder_position" model="ir.ui.view">
-        <field name="name">repair.order.form.workorder.position</field>
-        <field name="model">repair.order</field>
-        <field name="inherit_id" ref="repair.view_repair_order_form"/>
-        <field name="arch" type="xml">
-            <!-- Insere ANTES da aba operations (que está oculta) -->
-            <xpath expr="//page[@name='operations']" position="before">
-                <page string="Ordens de Serviço" name="work_orders_custom">
-                    <field name="workorder_ids" 
-                           context="{'default_repair_id': active_id}">
-                        <tree decoration-success="state=='progress'"
-                              decoration-danger="state=='blocked'"
-                              decoration-muted="state=='done'">
-                            <field name="name"/>
-                            <field name="workcenter_id"/>
-                            <field name="employee_id"/>
-                            <field name="duration"/>
-                            <field name="state" widget="badge"/>
-                            
-                            <button name="action_start"
-                                    type="object"
-                                    string="Iniciar"
-                                    class="btn btn-success"
-                                    attrs="{'invisible':[('state','!=','ready')]}"/>
-                            
-                            <button name="action_block"
-                                    type="object"
-                                    string="Bloquear"
-                                    class="btn btn-danger"
-                                    attrs="{'invisible':[('state','!=','progress')]}"/>
-                            
-                            <button name="action_done"
-                                    type="object"
-                                    string="Concluir"
-                                    class="btn btn-secondary"
-                                    attrs="{'invisible':[('state','not in',('progress','blocked'))]}"/>
-                        </tree>
-                    </field>
-                </page>
             </xpath>
         </field>
     </record>
