@@ -1,18 +1,69 @@
 <odoo>
-    <record id="view_repair_order_form_inherit_workorder"
-            model="ir.ui.view">
-        <field name="name">repair.order.form.workorder</field>
+    <!-- Remove a aba Work Orders que foi adicionada no final -->
+    <record id="view_repair_order_form_remove_workorder" model="ir.ui.view">
+        <field name="name">repair.order.form.remove.workorder</field>
+        <field name="model">repair.order</field>
+        <field name="inherit_id" ref="view_repair_order_form_inherit_workorder"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@string='Work Orders']" position="replace">
+                <!-- Remove a aba Work Orders original -->
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Oculta a aba Operations padrão do Repair -->
+    <record id="view_repair_order_form_hide_operations" model="ir.ui.view">
+        <field name="name">repair.order.form.hide.operations</field>
         <field name="model">repair.order</field>
         <field name="inherit_id" ref="repair.view_repair_order_form"/>
         <field name="arch" type="xml">
+            <xpath expr="//page[@string='Operations']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
 
-            <xpath expr="//notebook" position="inside">
-                <page string="Work Orders">
-                    <field name="workorder_ids"
-                           context="{'default_repair_id': active_id}"/>
+    <!-- Adiciona a aba Ordens de Serviço na posição da aba Operations -->
+    <record id="view_repair_order_form_workorder_position" model="ir.ui.view">
+        <field name="name">repair.order.form.workorder.position</field>
+        <field name="model">repair.order</field>
+        <field name="inherit_id" ref="repair.view_repair_order_form"/>
+        <field name="arch" type="xml">
+            <!-- Insere ANTES da aba Operations (que está oculta) -->
+            <xpath expr="//page[@string='Operations']" position="before">
+                <page string="Ordens de Serviço" name="work_orders_custom">
+                    <field name="workorder_ids" 
+                           context="{'default_repair_id': active_id}">
+                        <tree decoration-success="state=='progress'"
+                              decoration-danger="state=='blocked'"
+                              decoration-muted="state=='done'">
+                            <field name="name"/>
+                            <field name="workcenter_id"/>
+                            <field name="employee_id"/>
+                            <field name="duration"/>
+                            <field name="state" widget="badge"/>
+                            
+                            <button name="action_start"
+                                    type="object"
+                                    string="Iniciar"
+                                    class="btn btn-success"
+                                    attrs="{'invisible':[('state','!=','ready')]}"/>
+                            
+                            <button name="action_block"
+                                    type="object"
+                                    string="Bloquear"
+                                    class="btn btn-danger"
+                                    attrs="{'invisible':[('state','!=','progress')]}"/>
+                            
+                            <button name="action_done"
+                                    type="object"
+                                    string="Concluir"
+                                    class="btn btn-secondary"
+                                    attrs="{'invisible':[('state','not in',('progress','blocked'))]}"/>
+                        </tree>
+                    </field>
                 </page>
             </xpath>
-
         </field>
     </record>
 </odoo>
