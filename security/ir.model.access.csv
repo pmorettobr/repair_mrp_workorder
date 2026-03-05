@@ -1,2 +1,6 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_repair_workorder_user,repair.workorder.user,model_repair_workorder,,1,1,1,1
+access_repair_order_mrp_user,repair.order.mrp.user,repair.model_repair_order,base.group_user,1,0,0,0
+access_repair_order_mrp_repair,repair.order.mrp.repair,repair.model_repair_order,base.group_user,1,1,1,0
+access_mrp_production_repair_user,mrp.production.repair.user,mrp.model_mrp_production,base.group_user,1,0,0,0
+access_mrp_production_repair_repair,mrp.production.repair.repair,mrp.model_mrp_production,base.group_user,1,1,0,0
+access_mrp_workorder_operator,mrp.workorder.operator,mrp.model_mrp_workorder,base.group_user,1,1,0,0
